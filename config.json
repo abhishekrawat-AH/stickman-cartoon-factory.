@@ -1,0 +1,18 @@
+{
+  "channel_language": "English",
+  "short_seconds": 45,
+  "long_seconds": 180,
+  "upload_mode": "private",
+  "daily_upload_limit": 2,
+  "topic_categories": [
+    "school comedy",
+    "friendship comedy",
+    "gaming comedy",
+    "daily life comedy",
+    "superhero comedy"
+  ],
+  "characters": {
+    "A": "male",
+    "B": "female"
+  }
+}

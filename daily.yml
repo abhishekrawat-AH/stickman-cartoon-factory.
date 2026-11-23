@@ -1,0 +1,46 @@
+name: Daily Stickman Factory
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *" # 09:00 India time (UTC+5:30)
+permissions:
+  contents: read
+jobs:
+  make-videos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install system tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+      - name: Generate videos
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          AUTO_UPLOAD: "false"
+        run: python main.py
+      - name: Upload videos to YouTube (optional)
+        if: ${{ vars.AUTO_UPLOAD == 'true' }}
+        env:
+          YT_TOKEN_JSON_B64: ${{ secrets.YT_TOKEN_JSON_B64 }}
+        run: python upload.py short long
+      - name: Save rendered videos
+        uses: actions/upload-artifact@v4
+        with:
+          name: stickman-videos-${{ github.run_number }}
+          path: |
+            output/short.mp4
+            output/long.mp4
+            output/short_thumbnail.jpg
+            output/long_thumbnail.jpg
+            output/short_metadata.json
+            output/long_metadata.json
+            output/short_story.json
+            output/long_story.json
+          retention-days: 7
