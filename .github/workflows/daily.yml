@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install FFmpeg and voices
+      - name: Install system tools
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
@@ -33,21 +33,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate stickman videos
+      - name: Generate videos
         env:
           AUTO_UPLOAD: "false"
-        run: |
-          python main.py
+        run: python main.py
 
-      - name: Check generated files
+      - name: Verify final videos
         run: |
-          echo "Checking final videos..."
-          ls -lh output/
           test -s output/short.mp4
           test -s output/long.mp4
+          ls -lh output/
 
-      - name: Upload final videos and thumbnails
-        uses: actions/upload-artifact@v5
+      - name: Upload final videos
+        uses: actions/upload-artifact@v6
         with:
           name: stickman-final-videos
           path: |
