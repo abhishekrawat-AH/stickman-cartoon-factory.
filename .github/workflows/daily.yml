@@ -33,11 +33,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: stickman-videos
-          path: output/short.mp4
-  output/long.mp4
-  output/short_thumbnail.jpg
-  output/long_thumbnail.jpg
-  output/short_metadata.json
-  output/long_metadata.json
+          path: output/
           if-no-files-found: warn
           
