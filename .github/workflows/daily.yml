@@ -6,33 +6,56 @@ on:
   schedule:
     - cron: "30 3 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   render:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    timeout-minutes: 55
 
-      - name: Install system tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg espeak-ng
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install FFmpeg and voices
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
 
-      - name: Generate videos
-        run: python main.py
+      - name: Install Python requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Save videos
-        uses: actions/upload-artifact@v4
+      - name: Generate stickman videos
+        env:
+          AUTO_UPLOAD: "false"
+        run: |
+          python main.py
+
+      - name: Check generated files
+        run: |
+          echo "Checking final videos..."
+          ls -lh output/
+          test -s output/short.mp4
+          test -s output/long.mp4
+
+      - name: Upload final videos and thumbnails
+        uses: actions/upload-artifact@v5
         with:
-          name: stickman-videos
-          path: output/
-          if-no-files-found: warn
-          
+          name: stickman-final-videos
+          path: |
+            output/short.mp4
+            output/long.mp4
+            output/short_thumbnail.jpg
+            output/long_thumbnail.jpg
+            output/short_metadata.json
+            output/long_metadata.json
+          if-no-files-found: error
+          retention-days: 7
